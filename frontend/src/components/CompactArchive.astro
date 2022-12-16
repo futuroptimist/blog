@@ -1,0 +1,35 @@
+---
+import { styleHtml } from '../utils/markdown.js';
+
+const blogPosts = await Astro.glob('../../../md/*.md');
+---
+
+<div class="container">
+    <h1>Recent blog posts:</h1>
+    {blogPosts.map((post) => {
+        const { frontmatter, compiledContent } = post;
+        const { date } = frontmatter;
+        const html = styleHtml(compiledContent());
+        return (
+            <a href={`/post/${frontmatter.slug}`} class="postTitle">{frontmatter.title}</a> 
+            <p>{date}</p>
+            <p set:html={html} />
+        );
+    })}
+</div>
+
+<style>
+    a {
+        color: white;
+    }
+
+    .postTitle {
+        font-size: 2em;
+        font-weight: bold;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+    }
+</style>

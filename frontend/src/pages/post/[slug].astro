@@ -1,0 +1,58 @@
+---
+import Page from '../../layouts/Page.astro';
+import { styleHtml } from '../../utils/markdown.js'
+
+const { slug } = Astro.params;
+let title = "No post found";
+
+export async function getPosts() {
+    return await Astro.glob('../../../../md/*.md');
+}
+
+// a function named getStaticPaths that does the above
+
+export async function getStaticPaths() {
+    const blogPosts = await Astro.glob('../../../../md/*.md');
+
+    return blogPosts.map((post) => {
+        return {
+            params: {
+                slug: post.frontmatter.slug,
+            },
+        };
+    });
+}
+
+const posts = await getPosts();
+const post = posts.find((post) => post.frontmatter.slug === slug);
+
+if (post) {
+    const { frontmatter, compiledContent } = post;
+    title = frontmatter.title;
+}
+---
+
+<Page>
+    <div class="container">
+        <h1>{title}</h1>
+        <div class="content">
+            {post && <p set:html={styleHtml(post.compiledContent())} />}
+        </div>
+    </div>
+</Page>
+
+<style>
+    a {
+        color: white;
+    }
+
+    .postTitle {
+        font-size: 2em;
+        font-weight: bold;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+    }
+</style>
