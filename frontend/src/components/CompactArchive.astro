@@ -1,24 +1,35 @@
 ---
 import { styleHtml } from '../utils/markdown.js';
 
+// not exact yet as this includes some HTML tags
+const WORD_LIMIT = 1200;
+
 const blogPosts = await Astro.glob('../../../md/*.md');
 ---
 
-<div class="container">
+<Fragment class="container">
     <h1>Recent blog posts:</h1>
-    {blogPosts.map((post) => {
+    {blogPosts.reverse().map((post) => {
         const { frontmatter, compiledContent } = post;
-        const { date } = frontmatter;
-        const html = styleHtml(compiledContent());
+        const { date, title, slug } = frontmatter;
+        const html = compiledContent();
+        const truncatedHtml = styleHtml(html.substr(0, html.lastIndexOf(" ", WORD_LIMIT)) + "...");
+
         return (
-            <a href={`/post/${frontmatter.slug}`} class="postTitle">{frontmatter.title}</a> 
+            <hr />
+            <a href={`/post/${slug}`} class="postTitle">{title}</a> 
             <p>{date}</p>
-            <p set:html={html} />
+            <p set:html={truncatedHtml} />
+            <a class="large" href={`/post/${slug}`}>Read more...</a>
+            <hr />
         );
     })}
-</div>
+</Fragment>
 
 <style>
+    body {
+    }
+
     a {
         color: white;
     }
@@ -31,5 +42,14 @@ const blogPosts = await Astro.glob('../../../md/*.md');
     .container {
         display: flex;
         flex-direction: column;
+    }
+
+    hr {
+        border-style: none;
+        border-top: dashed 3px #00ff00;
+    }
+
+    .large {
+        font-size: 1.5em;
     }
 </style>

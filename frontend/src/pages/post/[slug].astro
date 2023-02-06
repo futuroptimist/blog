@@ -3,7 +3,7 @@ import Page from '../../layouts/Page.astro';
 import { styleHtml } from '../../utils/markdown.js'
 
 const { slug } = Astro.params;
-let title = "No post found";
+let title = "No post found", date;
 
 export async function getPosts() {
     return await Astro.glob('../../../../md/*.md');
@@ -29,12 +29,14 @@ const post = posts.find((post) => post.frontmatter.slug === slug);
 if (post) {
     const { frontmatter, compiledContent } = post;
     title = frontmatter.title;
+    date = frontmatter.date;
 }
 ---
 
 <Page>
     <div class="container">
         <h1>{title}</h1>
+        <h3>{date}</h3>
         <div class="content">
             {post && <p set:html={styleHtml(post.compiledContent())} />}
         </div>

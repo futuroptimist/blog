@@ -9,6 +9,14 @@ export const styleHtml = (html) => {
             a:hover {
                 color: gray;
             }
+            
+            a:visited {
+                color: white;
+            }
+
+            p {
+                font-size: 1.2rem;
+            }
         </style>
     `;
 
