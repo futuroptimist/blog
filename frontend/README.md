@@ -1,27 +1,33 @@
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) (version 14.18.0 or higher)
-- npm or yarn
+- [Node.js](https://nodejs.org/) (version 18.17.0 or higher)
+- npm
 
 ## Getting Started
 
-1. Clone this repository
+1. Install dependencies
+
+   ```bash
+   npm install
+   ```
+
+2. Start the development server
+
+   ```bash
+   npm run dev
+   ```
+
+   Your site will be available at http://localhost:3000/
+
+## Quality checks
+
+Run the following commands locally before pushing changes. They mirror the Flywheel best practices:
+
 ```bash
-git clone https://github.com/futuroptimist/blog
-cd frontend
+npm run lint
+npm run test:ci
+npm run build
 ```
 
-2. Install dependencies
-```bash
-npm install
-# or
-yarn
-```
-3. Start the development server
-```bash
-npm run dev
-# or
-yarn dev
-```
+Content lives in `src/content/posts` and is typed via Astro content collections.
 
-Your site will be available at http://localhost:3000/
