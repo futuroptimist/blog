@@ -1,7 +1,31 @@
 ---
-
+const year = new Date().getFullYear();
 ---
 
-<div>
-    goodbye
-</div>
+<footer class="site-footer">
+  <p>© {year} futuroptimist — Built in public.</p>
+  <p>
+    <a href="https://democratized.space" target="_blank" rel="noopener noreferrer">
+      Explore DSPACE
+    </a>
+  </p>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 2.5rem;
+    padding: 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    background: var(--color-surface);
+    box-shadow: 0 0 1.5rem rgba(0, 255, 118, 0.12);
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .site-footer a {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+</style>

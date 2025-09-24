@@ -1,4 +1,14 @@
 import { defineConfig } from 'astro/config';
 
-// https://astro.build/config
-export default defineConfig({});
+export default defineConfig({
+  prefetch: {
+    defaultStrategy: 'viewport',
+  },
+  markdown: {
+    syntaxHighlight: 'shiki',
+    shikiConfig: {
+      theme: 'dracula-soft',
+    },
+  },
+});
+

@@ -1,46 +1,32 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-// import Footer from '../components/Footer.astro';
-const { title } = Astro.props
+import MetaHead from '../components/MetaHead.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'futuroptimist — Blog',
+  description = 'Dispatches from the frontier of neon-tinged software and hands-on hardware.',
+} = Astro.props as Props;
 ---
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <BaseHead title={title}/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <MetaHead title={title} description={description} />
   </head>
   <body>
-    <article>
-      <div class="container">
-        <div class="content">
-          <slot /> <!-- your content is injected here -->
-        </div>
-      </div>
-    </article>
-    <!-- <Footer /> -->
+    <div class="page">
+      <SiteHeader />
+      <main id="main-content">
+        <slot />
+      </main>
+      <Footer />
+    </div>
   </body>
 </html>
-
-<style>
-	body {
-		background-color: black;
-		color: #00ff00;
-		font-family: monospace;
-	}
-
-  .container {
-    /* start the container at the left and extend over the whole page */
-    margin-left: 1rem;
-    margin-right: 1rem;
-    /* a darker matrix green suitable for a dark mode background */
-    background-color: #0f0f0f;
-    border-radius: 0.5rem;
-    /* add a slight background glow around the container */
-    box-shadow: 0 0 0.1rem 0.1rem #00ff00;
-    padding: 1rem;
-  }
-
-  .content {
-    color: #00ff00;
-  }
-</style>

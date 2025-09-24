@@ -1,60 +1,97 @@
 ---
+import { getCollection } from 'astro:content';
 import Page from '../../layouts/Page.astro';
-import { styleHtml } from '../../utils/markdown.js'
 
 const { slug } = Astro.params;
-let title = "No post found", date;
-
-export async function getPosts() {
-    return await Astro.glob('../../../../md/*.md');
-}
-
-// a function named getStaticPaths that does the above
 
 export async function getStaticPaths() {
-    const blogPosts = await Astro.glob('../../../../md/*.md');
-
-    return blogPosts.map((post) => {
-        return {
-            params: {
-                slug: post.frontmatter.slug,
-            },
-        };
-    });
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({
+    params: {
+      slug: post.slug,
+    },
+  }));
 }
 
-const posts = await getPosts();
-const post = posts.find((post) => post.frontmatter.slug === slug);
+const posts = await getCollection('posts');
+const post = posts.find((entry) => entry.slug === slug);
 
-if (post) {
-    const { frontmatter, compiledContent } = post;
-    title = frontmatter.title;
-    date = frontmatter.date;
+if (!post) {
+  return Astro.redirect('/archive');
 }
+
+const { Content, headings } = await post.render();
+
+const formatDate = new Intl.DateTimeFormat('en-US', {
+  dateStyle: 'long',
+});
 ---
 
-<Page>
-    <div class="container">
-        <h1>{title}</h1>
-        <h3>{date}</h3>
-        <div class="content">
-            {post && <p set:html={styleHtml(post.compiledContent())} />}
-        </div>
+<Page
+  title={`${post.data.title} — futuroptimist`}
+  description={post.data.description ?? headings[0]?.text ?? post.data.title}
+>
+  <article class="post">
+    <header class="post__header">
+      <h1>{post.data.title}</h1>
+      <time datetime={post.data.date.toISOString()}>{formatDate.format(post.data.date)}</time>
+    </header>
+    <div class="post__content">
+      <Content />
     </div>
+  </article>
 </Page>
 
 <style>
-    a {
-        color: white;
-    }
+  .post {
+    display: grid;
+    gap: 1.5rem;
+    padding: 2rem;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background: var(--color-panel);
+    box-shadow: 0 0 2.5rem rgba(0, 255, 118, 0.16);
+  }
 
-    .postTitle {
-        font-size: 2em;
-        font-weight: bold;
-    }
+  .post__header {
+    display: grid;
+    gap: 0.75rem;
+  }
 
-    .container {
-        display: flex;
-        flex-direction: column;
-    }
+  .post__header h1 {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 22px rgba(0, 255, 118, 0.6);
+  }
+
+  .post__header time {
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .post__content :global(p) {
+    margin-bottom: 1.4rem;
+  }
+
+  .post__content :global(a) {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .post__content :global(code) {
+    background: rgba(0, 255, 118, 0.12);
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.3rem;
+  }
+
+  .post__content :global(pre) {
+    background: rgba(0, 20, 0, 0.8);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    overflow-x: auto;
+  }
 </style>
