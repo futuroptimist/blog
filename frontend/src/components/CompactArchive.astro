@@ -1,55 +1,134 @@
 ---
-import { styleHtml } from '../utils/markdown.js';
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 
-// not exact yet as this includes some HTML tags
-const WORD_LIMIT = 1200;
+const posts = (await getCollection('posts')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
 
-const blogPosts = await Astro.glob('../../../md/*.md');
+const excerptWordLimit = 60;
+
+const formatDate = new Intl.DateTimeFormat('en-US', {
+  dateStyle: 'long',
+});
+
+const buildExcerpt = (entry: CollectionEntry<'posts'>) => {
+  if (entry.data.description) {
+    return entry.data.description;
+  }
+
+  const text = entry.body
+    .replace(/`{1,3}[^`]*`{1,3}/g, '')
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+    .replace(/[#>*_~>-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const words = text.split(' ').slice(0, excerptWordLimit).join(' ');
+  return words.length < text.length ? `${words}…` : words;
+};
 ---
 
-<Fragment class="container">
-    <h1>Recent blog posts:</h1>
-    {blogPosts.reverse().map((post) => {
-        const { frontmatter, compiledContent } = post;
-        const { date, title, slug } = frontmatter;
-        const html = compiledContent();
-        const truncatedHtml = styleHtml(html.substr(0, html.lastIndexOf(" ", WORD_LIMIT)) + "...");
+<section class="archive">
+  <header>
+    <h1>Recent transmissions</h1>
+    <p class="lede">
+      Thinking through sustainable futures, one cyber-green dispatch at a time.
+    </p>
+  </header>
 
-        return (
-            <hr />
-            <a href={`/post/${slug}`} class="postTitle">{title}</a> 
-            <p>{date}</p>
-            <p set:html={truncatedHtml} />
-            <a class="large" href={`/post/${slug}`}>Read more...</a>
-            <hr />
-        );
-    })}
-</Fragment>
+  <ul class="post-list">
+    {posts.map((post) => (
+      <li class="post-card">
+        <h2>
+          <a href={`/post/${post.slug}`}>{post.data.title}</a>
+        </h2>
+        <time datetime={post.data.date.toISOString()}>
+          {formatDate.format(post.data.date)}
+        </time>
+        <p>{buildExcerpt(post)}</p>
+        <a class="read-more" href={`/post/${post.slug}`}>
+          Read more ↗
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
 
 <style>
-    body {
-    }
+  .archive {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
 
-    a {
-        color: white;
-    }
+  header h1 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-shadow: 0 0 18px rgba(0, 255, 118, 0.55);
+  }
 
-    .postTitle {
-        font-size: 2em;
-        font-weight: bold;
-    }
+  .lede {
+    max-width: 42rem;
+    color: var(--color-muted);
+    font-size: 1rem;
+  }
 
-    .container {
-        display: flex;
-        flex-direction: column;
-    }
+  .post-list {
+    display: grid;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
 
-    hr {
-        border-style: none;
-        border-top: dashed 3px #00ff00;
-    }
+  .post-card {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background: var(--color-panel);
+    box-shadow: 0 0 2rem rgba(0, 255, 118, 0.12);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
 
-    .large {
-        font-size: 1.5em;
+  .post-card:hover,
+  .post-card:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 0 2.5rem rgba(0, 255, 118, 0.2);
+  }
+
+  .post-card h2 {
+    margin: 0;
+    font-size: clamp(1.3rem, 3vw, 1.75rem);
+    letter-spacing: 0.05em;
+  }
+
+  .post-card time {
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .post-card p {
+    margin: 0;
+    color: var(--color-primary);
+  }
+
+  .read-more {
+    justify-self: flex-start;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  @media (min-width: 960px) {
+    .post-list {
+      grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
     }
+  }
 </style>
